@@ -1,0 +1,37 @@
+{
+  "name": "community-cordova-plugin-magnetometer",
+  "version": "1.0.1",
+  "description": "Cordova plugin to access the device magnetometer (compass) sensor",
+  "cordova": {
+    "id": "community-cordova-plugin-magnetometer",
+    "platforms": [
+      "android",
+      "ios",
+      "browser"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AyalaCommunity/community-cordova-plugin-magnetometer.git"
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios",
+    "cordova-browser",
+    "magnetometer",
+    "compass",
+    "sensor",
+    "magnetic",
+    "heading",
+    "orientation"
+  ],
+  "author": "EYALIN",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AyalaCommunity/community-cordova-plugin-magnetometer/issues"
+  },
+  "homepage": "https://github.com/AyalaCommunity/community-cordova-plugin-magnetometer#readme",
+  "main": "./types/index.d.ts",
+  "types": "./types/index.d.ts"
+}

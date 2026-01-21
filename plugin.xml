@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="community-cordova-plugin-magnetometer"
+        version="1.0.1">
+
+    <name>Magnetometer</name>
+    <description>Cordova plugin to access the device magnetometer (compass) sensor</description>
+    <license>MIT</license>
+    <keywords>cordova,magnetometer,compass,sensor,magnetic,heading</keywords>
+
+    <js-module src="www/magnetometer.js" name="magnetometer">
+        <clobbers target="MagnetometerPlugin" />
+    </js-module>
+
+    <!-- Android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="Magnetometer">
+                <param name="android-package" value="com.community.cordova.magnetometer.Magnetometer" />
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/Magnetometer.java" target-dir="src/com/community/cordova/magnetometer" />
+    </platform>
+
+    <!-- iOS -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Magnetometer">
+                <param name="ios-package" value="CDVMagnetometer" />
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/CDVMagnetometer.h" />
+        <source-file src="src/ios/CDVMagnetometer.m" />
+
+        <framework src="CoreMotion.framework" />
+        <framework src="CoreLocation.framework" />
+    </platform>
+
+    <!-- Browser -->
+    <platform name="browser">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Magnetometer">
+                <param name="browser-package" value="Magnetometer" />
+            </feature>
+        </config-file>
+
+        <js-module src="src/browser/MagnetometerProxy.js" name="MagnetometerProxy">
+            <runs />
+        </js-module>
+    </platform>
+</plugin>
