@@ -2,6 +2,8 @@
   "name": "community-cordova-plugin-magnetometer",
   "version": "1.0.1",
   "description": "Cordova plugin to access the device magnetometer (compass) sensor",
+  "main": "./types/index.d.ts",
+  "types": "./types/index.d.ts",
   "cordova": {
     "id": "community-cordova-plugin-magnetometer",
     "platforms": [
@@ -10,10 +12,11 @@
       "browser"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AyalaCommunity/community-cordova-plugin-magnetometer.git"
-  },
+  "readme": "README.md",
+  "repository": "EYALIN/community-cordova-plugin-magnetometer",
+  "homepage": "https://github.com/EYALIN/community-cordova-plugin-magnetometer",
+  "funding": "https://github.com/sponsors/EYALIN",
+  "bugs": "https://github.com/EYALIN/community-cordova-plugin-magnetometer/issues",
   "keywords": [
     "ecosystem:cordova",
     "cordova-android",
@@ -26,12 +29,20 @@
     "heading",
     "orientation"
   ],
+  "scripts": {
+    "test": "npm run lint",
+    "lint": "eslint ."
+  },
   "author": "EYALIN",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/AyalaCommunity/community-cordova-plugin-magnetometer/issues"
+  "engines": {
+    "cordovaDependencies": {
+      "1.0.0": {
+        "cordova": ">100"
+      }
+    }
   },
-  "homepage": "https://github.com/AyalaCommunity/community-cordova-plugin-magnetometer#readme",
-  "main": "./types/index.d.ts",
-  "types": "./types/index.d.ts"
+  "devDependencies": {
+    "@cordova/eslint-config": "^3.0.0"
+  }
 }
