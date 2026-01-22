@@ -107,25 +107,27 @@
 #pragma mark - Watch Readings
 
 - (void)watchReadings:(CDVInvokedUrlCommand *)command {
-    if (!self.motionManager.magnetometerAvailable) {
-        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Magnetometer not available"];
+    if (!self.motionManager.deviceMotionAvailable) {
+        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Device motion not available"];
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
         return;
     }
 
     // Stop any existing watch
-    [self.motionManager stopMagnetometerUpdates];
+    [self.motionManager stopDeviceMotionUpdates];
 
     self.watchCallbackId = command.callbackId;
 
     NSNumber *frequencyArg = [command.arguments objectAtIndex:0];
     double frequency = frequencyArg ? [frequencyArg doubleValue] : 100;
-    self.motionManager.magnetometerUpdateInterval = frequency / 1000.0;
+    self.motionManager.deviceMotionUpdateInterval = frequency / 1000.0;
 
     __weak CDVMagnetometer *weakSelf = self;
 
-    [self.motionManager startMagnetometerUpdatesToQueue:[NSOperationQueue mainQueue]
-                                            withHandler:^(CMMagnetometerData *data, NSError *error) {
+    // Use device motion with calibrated magnetic field (matches Android units in microteslas)
+    [self.motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXMagneticNorthZVertical
+                                                            toQueue:[NSOperationQueue mainQueue]
+                                                        withHandler:^(CMDeviceMotion *motion, NSError *error) {
         if (error) {
             CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error.localizedDescription];
             [result setKeepCallbackAsBool:YES];
@@ -133,10 +135,11 @@
             return;
         }
 
-        if (data) {
-            double x = data.magneticField.x;
-            double y = data.magneticField.y;
-            double z = data.magneticField.z;
+        if (motion) {
+            // Use calibrated magnetic field - values are in microteslas, same as Android
+            double x = motion.magneticField.field.x;
+            double y = motion.magneticField.field.y;
+            double z = motion.magneticField.field.z;
             double magnitude = sqrt(x*x + y*y + z*z);
 
             NSDictionary *reading = @{
@@ -155,7 +158,7 @@
 }
 
 - (void)stopWatch:(CDVInvokedUrlCommand *)command {
-    [self.motionManager stopMagnetometerUpdates];
+    [self.motionManager stopDeviceMotionUpdates];
     self.watchCallbackId = nil;
 
     CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -312,6 +315,7 @@
 }
 
 - (void)onReset {
+    [self.motionManager stopDeviceMotionUpdates];
     [self.motionManager stopMagnetometerUpdates];
     [self.locationManager stopUpdatingHeading];
     self.watchCallbackId = nil;

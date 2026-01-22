@@ -1,6 +1,6 @@
 {
   "name": "community-cordova-plugin-magnetometer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Cordova plugin to access the device magnetometer (compass) sensor",
   "main": "./types/index.d.ts",
   "types": "./types/index.d.ts",
