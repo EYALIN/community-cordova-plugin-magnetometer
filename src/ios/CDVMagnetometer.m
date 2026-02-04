@@ -1,5 +1,8 @@
 #import "CDVMagnetometer.h"
 
+// Error codes - matching DeviceOrientation plugin convention
+static const int ERROR_NOT_AVAILABLE = 3;
+
 @implementation CDVMagnetometer
 
 - (void)pluginInitialize {
@@ -8,6 +11,27 @@
     self.locationManager.delegate = self;
     self.currentAccuracy = 3; // Default to high
     self.calibrationNeeded = NO;
+}
+
+#pragma mark - Error Helpers
+
+- (void)sendErrorWithCode:(int)code message:(NSString *)message callbackId:(NSString *)callbackId {
+    NSDictionary *error = @{
+        @"code": @(code),
+        @"message": message
+    };
+    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:error];
+    [self.commandDelegate sendPluginResult:result callbackId:callbackId];
+}
+
+- (void)sendErrorWithCode:(int)code message:(NSString *)message callbackId:(NSString *)callbackId keepCallback:(BOOL)keepCallback {
+    NSDictionary *error = @{
+        @"code": @(code),
+        @"message": message
+    };
+    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:error];
+    [result setKeepCallbackAsBool:keepCallback];
+    [self.commandDelegate sendPluginResult:result callbackId:callbackId];
 }
 
 #pragma mark - Availability Check
@@ -25,8 +49,7 @@
 - (void)getReading:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         if (!self.motionManager.magnetometerAvailable) {
-            CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Magnetometer not available"];
-            [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+            [self sendErrorWithCode:ERROR_NOT_AVAILABLE message:@"Magnetometer not available" callbackId:command.callbackId];
             return;
         }
 
@@ -66,8 +89,7 @@
 - (void)getHeading:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         if (![CLLocationManager headingAvailable]) {
-            CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Heading not available"];
-            [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+            [self sendErrorWithCode:ERROR_NOT_AVAILABLE message:@"Heading not available" callbackId:command.callbackId];
             return;
         }
 
@@ -108,8 +130,7 @@
 
 - (void)watchReadings:(CDVInvokedUrlCommand *)command {
     if (!self.motionManager.deviceMotionAvailable) {
-        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Device motion not available"];
-        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self sendErrorWithCode:ERROR_NOT_AVAILABLE message:@"Device motion not available" callbackId:command.callbackId];
         return;
     }
 
@@ -169,8 +190,7 @@
 
 - (void)watchHeading:(CDVInvokedUrlCommand *)command {
     if (![CLLocationManager headingAvailable]) {
-        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Heading not available"];
-        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self sendErrorWithCode:ERROR_NOT_AVAILABLE message:@"Heading not available" callbackId:command.callbackId];
         return;
     }
 
@@ -288,8 +308,7 @@
 - (void)getFieldStrength:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         if (!self.motionManager.magnetometerAvailable) {
-            CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Magnetometer not available"];
-            [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+            [self sendErrorWithCode:ERROR_NOT_AVAILABLE message:@"Magnetometer not available" callbackId:command.callbackId];
             return;
         }
 

@@ -20,6 +20,9 @@ public class Magnetometer extends CordovaPlugin implements SensorEventListener {
 
     private static final String LOG_TAG = "Magnetometer";
 
+    // Error codes - matching DeviceOrientation plugin convention
+    private static final int ERROR_NOT_AVAILABLE = 3;
+
     private SensorManager sensorManager;
     private Sensor magnetometer;
     private Sensor rotationVector;
@@ -96,7 +99,7 @@ public class Magnetometer extends CordovaPlugin implements SensorEventListener {
 
     private void getReading(final CallbackContext callbackContext) {
         if (magnetometer == null) {
-            callbackContext.error("Magnetometer not available");
+            sendError(callbackContext, ERROR_NOT_AVAILABLE, "Magnetometer not available");
             return;
         }
 
@@ -146,7 +149,7 @@ public class Magnetometer extends CordovaPlugin implements SensorEventListener {
 
     private void getHeading(final CallbackContext callbackContext) {
         if (magnetometer == null) {
-            callbackContext.error("Magnetometer not available");
+            sendError(callbackContext, ERROR_NOT_AVAILABLE, "Magnetometer not available");
             return;
         }
 
@@ -217,7 +220,7 @@ public class Magnetometer extends CordovaPlugin implements SensorEventListener {
 
     private void watchReadings(CallbackContext callbackContext, final int frequency) {
         if (magnetometer == null) {
-            callbackContext.error("Magnetometer not available");
+            sendError(callbackContext, ERROR_NOT_AVAILABLE, "Magnetometer not available");
             return;
         }
 
@@ -246,7 +249,7 @@ public class Magnetometer extends CordovaPlugin implements SensorEventListener {
 
     private void watchHeading(CallbackContext callbackContext, final int frequency) {
         if (magnetometer == null) {
-            callbackContext.error("Magnetometer not available");
+            sendError(callbackContext, ERROR_NOT_AVAILABLE, "Magnetometer not available");
             return;
         }
 
@@ -388,7 +391,7 @@ public class Magnetometer extends CordovaPlugin implements SensorEventListener {
 
     private void getFieldStrength(final CallbackContext callbackContext) {
         if (magnetometer == null) {
-            callbackContext.error("Magnetometer not available");
+            sendError(callbackContext, ERROR_NOT_AVAILABLE, "Magnetometer not available");
             return;
         }
 
@@ -504,6 +507,38 @@ public class Magnetometer extends CordovaPlugin implements SensorEventListener {
             return SensorManager.SENSOR_DELAY_UI;
         } else {
             return SensorManager.SENSOR_DELAY_NORMAL;
+        }
+    }
+
+    /**
+     * Send a structured error with code and message
+     */
+    private void sendError(CallbackContext callbackContext, int code, String message) {
+        try {
+            JSONObject error = new JSONObject();
+            error.put("code", code);
+            error.put("message", message);
+            callbackContext.error(error);
+        } catch (JSONException e) {
+            callbackContext.error(message);
+        }
+    }
+
+    /**
+     * Send a structured error with code and message, keeping callback alive
+     */
+    private void sendErrorKeepCallback(CallbackContext callbackContext, int code, String message) {
+        try {
+            JSONObject error = new JSONObject();
+            error.put("code", code);
+            error.put("message", message);
+            PluginResult result = new PluginResult(PluginResult.Status.ERROR, error);
+            result.setKeepCallback(true);
+            callbackContext.sendPluginResult(result);
+        } catch (JSONException e) {
+            PluginResult result = new PluginResult(PluginResult.Status.ERROR, message);
+            result.setKeepCallback(true);
+            callbackContext.sendPluginResult(result);
         }
     }
 

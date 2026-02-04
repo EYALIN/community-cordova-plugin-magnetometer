@@ -242,6 +242,43 @@ Get the total magnetic field strength (magnitude).
 
 **Returns:** Field strength in microteslas (μT).
 
+## Error Handling
+
+When errors occur, the plugin returns structured error objects:
+
+```typescript
+interface MagnetometerError {
+    code: number;
+    message: string;
+}
+```
+
+### Error Codes
+
+| Code | Constant | Description |
+|------|----------|-------------|
+| `3` | `NOT_AVAILABLE` | Magnetometer sensor is not available on the device |
+
+### Example Error Handling
+
+```typescript
+MagnetometerPlugin.watchReadings(
+    (reading) => {
+        console.log('Reading:', reading);
+    },
+    (error) => {
+        if (error.code === 3) {
+            // Sensor not available - show user-friendly message
+            console.log('This device does not have a magnetic sensor');
+        } else {
+            // Other error
+            console.error('Magnetometer error:', error.message);
+        }
+    },
+    { frequency: 100 }
+);
+```
+
 ## Interfaces
 
 ### IMagnetometerReading
