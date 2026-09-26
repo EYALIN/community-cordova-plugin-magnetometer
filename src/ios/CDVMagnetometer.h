@@ -10,6 +10,10 @@
 @property (nonatomic, strong) NSString *watchHeadingCallbackId;
 @property (nonatomic, assign) int currentAccuracy;
 @property (nonatomic, assign) BOOL calibrationNeeded;
+// Heading state - main queue only
+@property (nonatomic, strong) NSMutableArray<NSString *> *pendingHeadingCallbackIds;
+@property (nonatomic, assign) BOOL headingUpdatesRunning;
+@property (nonatomic, assign) NSTimeInterval lastHeadingRequestTime;
 
 - (void)isAvailable:(CDVInvokedUrlCommand *)command;
 - (void)getReading:(CDVInvokedUrlCommand *)command;

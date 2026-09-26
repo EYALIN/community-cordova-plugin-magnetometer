@@ -153,11 +153,27 @@ Get current compass heading.
 ```typescript
 {
     magneticHeading: number;  // Degrees from magnetic north (0-359.99)
-    trueHeading: number;      // Degrees from true north (0-359.99)
-    headingAccuracy: number;  // Accuracy in degrees (iOS only, -1 if unavailable)
+    trueHeading: number;      // Degrees from true north (0-359.99), see below
+    headingAccuracy: number;  // Accuracy in degrees, -1 if unavailable
     timestamp: number;        // Reading timestamp (ms)
 }
 ```
+
+Cheap to poll: after a call the sensor stays on for 3 s, so calling `getHeading()` every 100 ms is answered
+from the running sensor. Android uses `TYPE_ROTATION_VECTOR` when available (accelerometer + magnetometer otherwise).
+
+**No location permission.** The plugin never declares or requests one. On iOS `trueHeading` is -1 whenever iOS
+has no valid true heading (it needs location authorization and a location fix, which the plugin does not ask for);
+on Android it is magnetic heading + declination when the app already holds ACCESS_COARSE/FINE_LOCATION and a last
+known location exists, otherwise equal to `magneticHeading`.
+
+Headings are in the device's portrait frame (the direction the top of the device points), on both platforms, the
+same as `cordova-plugin-device-orientation`; they are not remapped for a rotated screen.
+
+**Replacing `cordova-plugin-device-orientation`:** `getHeading()` returns the same object as its
+`navigator.compass.getCurrentHeading()` / `DeviceOrientation.getCurrentHeading()`, and `watchHeading()` replaces
+`watchHeading()`/`clearWatch()` (stop with `stopWatchHeading()`). Unlike device-orientation it does not add
+ACCESS_FINE_LOCATION / ACCESS_COARSE_LOCATION to the manifest.
 
 ---
 
@@ -188,7 +204,7 @@ Start watching compass heading continuously.
 - `errorCallback`: Function called on error
 - `options`: Optional settings
   - `frequency`: Update interval in milliseconds (default: 100)
-  - `filter`: Minimum heading change in degrees to trigger update (iOS only)
+  - `filter`: Minimum heading change in degrees to trigger update (Android and iOS; default 0 = every update)
 
 ---
 
@@ -206,8 +222,8 @@ Get complete magnetometer information.
 ```typescript
 {
     isAvailable: boolean;
-    reading: IMagnetometerReading;
-    heading: IHeadingData;
+    reading: IMagnetometerReading; // absent when no reading arrived in time
+    heading: IHeadingData;         // the last heading; absent until getHeading/watchHeading has produced one
     accuracy: number;         // 0=unreliable, 1=low, 2=medium, 3=high
     calibrationNeeded: boolean;
     platform: string;         // 'android', 'ios', or 'browser'
@@ -298,8 +314,8 @@ interface IMagnetometerReading {
 ```typescript
 interface IHeadingData {
     magneticHeading: number;  // Heading relative to magnetic north (0-359.99°)
-    trueHeading: number;      // Heading relative to true north (0-359.99°)
-    headingAccuracy: number;  // Accuracy in degrees (iOS only)
+    trueHeading: number;      // Heading relative to true north (0-359.99°), see getHeading()
+    headingAccuracy: number;  // Accuracy in degrees, -1 if unavailable
     timestamp: number;        // Timestamp in milliseconds
 }
 ```
@@ -323,16 +339,18 @@ interface IMagnetometerInfo {
 
 - Uses `CoreMotion` framework for raw magnetometer data
 - Uses `CoreLocation` framework for compass heading
-- `trueHeading` requires location services to be enabled
+- `trueHeading` is -1 unless iOS has location authorization and a fix (the plugin requests neither)
 - `headingAccuracy` is available and indicates the accuracy in degrees
 - Calibration prompt is shown automatically when needed
 
 ### Android
 
 - Uses `SensorManager` with `TYPE_MAGNETIC_FIELD` sensor
-- Compass heading calculated using rotation matrix from magnetometer + accelerometer
-- `headingAccuracy` returns `-1` (not available on Android)
-- `trueHeading` equals `magneticHeading` (GPS-based declination not implemented)
+- Compass heading from `TYPE_ROTATION_VECTOR` when the device has it, otherwise from magnetometer + accelerometer
+  (a device with neither rotation vector nor accelerometer rejects `getHeading`/`watchHeading` with code `3`)
+- `headingAccuracy` is the rotation vector's estimated accuracy in degrees when reported, otherwise `-1`
+- `trueHeading` adds the `GeomagneticField` declination only when the app already holds a location permission;
+  otherwise it equals `magneticHeading`
 
 ### Browser
 

@@ -20,9 +20,14 @@ export interface IMagnetometerReading {
 export interface IHeadingData {
     /** Magnetic heading in degrees (0-359.99), relative to magnetic north */
     magneticHeading: number;
-    /** True heading in degrees (0-359.99), relative to geographic north (requires location services) */
+    /**
+     * True heading in degrees (0-359.99), relative to geographic north.
+     * iOS: -1 unless iOS has location authorization and a fix (the plugin requests neither). Android: magnetic heading + declination when the app
+     * already holds a location permission and a last known location exists, otherwise equal to magneticHeading.
+     * The plugin never requests a location permission.
+     */
     trueHeading: number;
-    /** Heading accuracy in degrees (iOS only, -1 if unavailable) */
+    /** Heading accuracy in degrees, -1 if unavailable (Android: reported by the rotation-vector sensor on most devices) */
     headingAccuracy: number;
     /** Timestamp of the reading in milliseconds */
     timestamp: number;
@@ -34,9 +39,9 @@ export interface IHeadingData {
 export interface IMagnetometerInfo {
     /** Whether magnetometer sensor is available */
     isAvailable: boolean;
-    /** Current magnetometer reading */
+    /** Current magnetometer reading. Absent when no reading arrived in time. */
     reading: IMagnetometerReading;
-    /** Current compass heading */
+    /** Last compass heading. Absent until getHeading/watchHeading has produced one. */
     heading: IHeadingData;
     /** Sensor accuracy level: 0=unreliable, 1=low, 2=medium, 3=high */
     accuracy: number;
@@ -52,7 +57,7 @@ export interface IMagnetometerInfo {
 export interface IWatchOptions {
     /** Update frequency in milliseconds (default: 100) */
     frequency?: number;
-    /** Minimum heading change in degrees to trigger update (heading watch only) */
+    /** Minimum heading change in degrees to trigger update (heading watch only; Android and iOS) */
     filter?: number;
 }
 

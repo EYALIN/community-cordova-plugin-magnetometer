@@ -1,9 +1,18 @@
 {
   "name": "community-cordova-plugin-magnetometer",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Cordova plugin to access the device magnetometer (compass) sensor",
   "main": "./types/index.d.ts",
   "types": "./types/index.d.ts",
+  "files": [
+    "plugin.xml",
+    "www/",
+    "src/",
+    "types/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "cordova": {
     "id": "community-cordova-plugin-magnetometer",
     "platforms": [
@@ -13,10 +22,15 @@
     ]
   },
   "readme": "README.md",
-  "repository": "EYALIN/community-cordova-plugin-magnetometer",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EYALIN/community-cordova-plugin-magnetometer.git"
+  },
   "homepage": "https://github.com/EYALIN/community-cordova-plugin-magnetometer",
   "funding": "https://github.com/sponsors/EYALIN",
-  "bugs": "https://github.com/EYALIN/community-cordova-plugin-magnetometer/issues",
+  "bugs": {
+    "url": "https://github.com/EYALIN/community-cordova-plugin-magnetometer/issues"
+  },
   "keywords": [
     "ecosystem:cordova",
     "cordova-android",
@@ -30,7 +44,7 @@
     "orientation"
   ],
   "scripts": {
-    "test": "npm run lint",
+    "test": "bash tests/android/run.sh",
     "lint": "eslint ."
   },
   "author": "EYALIN",
@@ -38,7 +52,9 @@
   "engines": {
     "cordovaDependencies": {
       "1.0.0": {
-        "cordova": ">100"
+        "cordova": ">=10.0.0",
+        "cordova-android": ">=11.0.0",
+        "cordova-ios": ">=6.0.0"
       }
     }
   },
